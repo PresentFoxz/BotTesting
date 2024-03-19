@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace TextCommandFramework;
@@ -21,6 +23,8 @@ public class UserList
 
 public class Profile
 {
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
     public string ProfileId { get; set; }
     public string Name { get; set; }
     public ulong DiscordId { get; set; }

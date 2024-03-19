@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using TextCommandFramework.Services;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace TextCommandFramework;
 
@@ -61,7 +62,11 @@ class Program
 
     private static ServiceProvider ConfigureServices()
     {
-        return new ServiceCollection()
+        var folder = Environment.SpecialFolder.LocalApplicationData;
+        var path = Environment.GetFolderPath(folder);
+        path = System.IO.Path.Join(path, "bot.db");
+
+        var services = new ServiceCollection()
             .AddSingleton(new DiscordSocketConfig
             {
                 GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
@@ -69,7 +74,12 @@ class Program
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton<CommandService>()
             .AddSingleton<CommandHandlingService>()
-            .AddSingleton<HttpClient>()
-            .BuildServiceProvider();
+            .AddSingleton<HttpClient>();
+
+        services.AddDbContext<BotContext>(
+            options => options.UseSqlite($"Data Source={path}"));
+
+
+        return services.BuildServiceProvider();
     }
 }

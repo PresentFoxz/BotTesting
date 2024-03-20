@@ -18,7 +18,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         _db = db;
     }
 
-    [Command("new")]
+    [Command("newAccount")]
     public async Task NewAsync()
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
@@ -46,7 +46,25 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    [Command("ping")]
+    [Command("delAccount")]
+    public async Task delAsync()
+    {
+        var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
+
+        if (user != null)
+        {
+            await ReplyAsync("Account removed!");
+            return;
+        }
+        else
+        {
+            await ReplyAsync("There is no account made!");
+            return;
+        }
+        
+    }
+
+[Command("ping")]
     public Task PingAsync()
         => ReplyAsync("pong!");
 

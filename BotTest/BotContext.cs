@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace TextCommandFramework;
@@ -32,4 +33,19 @@ public class Profile
     public int Level { get; set; }
     public int Experience { get; set; }
     public int InventorySpace { get; set; }
+    public int fight { get; set; }
+    public string cName { get; set; }
+    public int cExpGain { get; set; }
+    public int cHP { get; set; }
+    public int cDamage { get; set; }
+}
+
+public class Items
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    public int ItemId { get; set; } 
+    public string Name { get; set; }
+    public int Damage { get; set; }
+    public int Value { get; set; }
 }

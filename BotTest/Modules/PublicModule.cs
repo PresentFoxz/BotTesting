@@ -9,6 +9,7 @@ using TextCommandFramework.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
 using System;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TextCommandFramework.Modules;
 
@@ -27,11 +28,11 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
         Profile profile = user;
-
-        // 0: Chicken, 1: Bee, 2: Poisonous Spider, 3: Wolf
-        List<int> dungeonCrawlers = new List<int> {1, 3, 3, 5};
-        Random rnd = new Random();
+        
+        string cName = "";
+        int cExpGain, cHP, cDamage = 0;
         int fight = -1;
+        Random rnd = new Random();
 
         if (mess1 == "account")
         {
@@ -96,12 +97,37 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 if (move > 20)
                 {
                     fight = rnd.Next(0, 3);
-                }
-                else
-                {
-                    return;
-                }
 
+                    // 0: Chicken, 1: Bee, 2: Poisonous Spider, 3: Wolf
+                    switch (fight)
+                    {
+                        case 0:
+                            cName = "Chicken";
+                            cHP = 3;
+                            cDamage = 1;
+                            cExpGain = 5;
+                            break;
+                        case 1:
+                            cName = "Bee";
+                            cHP = 8;
+                            cDamage = 2;
+                            cExpGain = 7;
+                            break;
+                        case 2:
+                            cName = "Poisonous Spider";
+                            cHP = 12;
+                            cDamage = 3;
+                            cExpGain = 12;
+                            break;
+                        case 3:
+                            cName = "Wolf";
+                            cHP = 20;
+                            cDamage = 10;
+                            cExpGain = 25;
+                            break;
+                    };
+
+                }
                 return;
             }
             else if (user != null && mess2 == "crawl" && fight >= 0)
@@ -112,7 +138,16 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
             if (user != null && mess2 == "fight" && fight >= 0)
             {
+                int dMult = (damage * user.Level * value);
 
+                 cHP -= (dMult);
+
+                if (cHP <= 0)
+                {
+                    await ReplyAsync($"You win! Here's the exp you've earned: {cExpGain}");
+                    fight = -1;
+                }
+                return;
             }
             else
             {

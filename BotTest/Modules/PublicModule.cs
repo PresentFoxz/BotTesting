@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using TextCommandFramework.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.Generic;
 
 namespace TextCommandFramework.Modules;
 
@@ -25,6 +26,9 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
         Profile profile = user;
+
+        // 0: Chicken, 1: Bee, 2: Poisonous Spider, 3: Wolf
+        List<int> dungeonCrawlers = new List<int> {};
 
         if (mess1 == "account")
         {
@@ -74,7 +78,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
         if (mess1 == "Dungeon")
         {
-            if (user != null && mess2 == "Crawl")
+            if (user != null && mess2 == "crawl")
             {
                 return;
             }

@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using TextCommandFramework.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TextCommandFramework.Modules;
 
@@ -18,62 +20,62 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         _db = db;
     }
 
-    [Command("newAccount")]
-    public async Task NewAsync()
+    [Command("Game")]
+    public async Task GameAsync(string mess1, string mess2)
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
+        Profile profile = user;
 
-        if (user != null)
+        if (mess1 == "account")
         {
-            await ReplyAsync("You already have a profile!");
-            return;
-        }
-        else
-        {
-            var profile = new Profile
+            if (user != null && mess2 == "new")
             {
-                Name = Context.User.GlobalName,
-                DiscordId = Context.User.Id,
-                Money = 100,
-                Level = 1,
-                Experience = 0,
-                InventorySpace = 10
-            };
+                await ReplyAsync("You already have a profile!");
+                return;
+            }
+            else if (user == null && mess2 == "new")
+            {
+                profile = new Profile
+                {
+                    Name = Context.User.GlobalName,
+                    DiscordId = Context.User.Id,
+                    Money = 100,
+                    Level = 1,
+                    Experience = 0,
+                    InventorySpace = 10
+                };
 
-            _db.Profile.Add(profile);
-            await _db.SaveChangesAsync();
-            await ReplyAsync("Account created!");
+                _db.Profile.Add(profile);
+                await _db.SaveChangesAsync();
+                await ReplyAsync("Account created!");
+            }
+            if (user != null && mess2 == "delete")
+            {
+                _db.Profile.Remove(profile);
+                _db.SaveChangesAsync();
+
+                await ReplyAsync("Account removed!");
+                return;
+            }
+            else if (user == null && mess2 == "delete")
+            {
+                await ReplyAsync("Account not found!");
+                return;
+            }
+
+            if (user != null && mess2 == "showProfile")
+            {
+                await ReplyAsync($"This is you: {user}");
+                return;
+            }
         }
-    }
 
-    [Command("delAccount")]
-    public async Task delAsync()
-    {
-        var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
-
-        if (user != null)
+        if (mess1 == "Move")
         {
-            await ReplyAsync("Account removed!");
-            return;
+            if (user != null && mess2 == "Up")
+            {
+
+            }
         }
-        else
-        {
-            await ReplyAsync("There is no account made!");
-            return;
-        }
-        
-    }
-
-[Command("ping")]
-    public Task PingAsync()
-        => ReplyAsync("pong!");
-
-    // Get info on a user, or the user who invoked the command if one is not specified
-    [Command("userinfo")]
-    public async Task UserInfoAsync(IUser user = null)
-    {
-        user ??= Context.User;
-
-        await ReplyAsync(user.ToString());
     }
 }

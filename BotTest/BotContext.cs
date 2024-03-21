@@ -33,3 +33,12 @@ public class Profile
     public int Experience { get; set; }
     public int InventorySpace { get; set; }
 }
+
+public class Items
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public int ItemId { get; set; }
+    public string Name { get; set; }
+    public int Damage { get; set; }
+    public int Value { get; set; }
+}

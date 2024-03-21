@@ -49,6 +49,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 await _db.SaveChangesAsync();
                 await ReplyAsync("Account created!");
             }
+
             if (user != null && mess2 == "delete")
             {
                 _db.Profile.Remove(profile);
@@ -57,25 +58,39 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 await ReplyAsync("Account removed!");
                 return;
             }
-            else if (user == null && mess2 == "delete")
+
+            if (user != null && mess2 == "showProfile")
+            {
+                await ReplyAsync($"This is you: {user.Name}, \nMoney: {user.Money} \nLevel: {user.Level} \nExperience: {user.Experience} \nSpace: {user.InventorySpace}");
+                return;
+            }
+
+            if (user == null && mess2 == "delete" || mess2 == "showProfile")
             {
                 await ReplyAsync("Account not found!");
                 return;
             }
+        }
 
-            if (user != null && mess2 == "showProfile")
+        if (mess1 == "Dungeon")
+        {
+            if (user != null && mess2 == "Crawl")
             {
-                await ReplyAsync($"This is you: {user}");
                 return;
             }
         }
+    }
 
-        if (mess1 == "Move")
-        {
-            if (user != null && mess2 == "Up")
-            {
-
-            }
-        }
+    [Command("Help")]
+    public async Task HelpAsync()
+    {
+        await ReplyAsync("You will always put a space between your commands!" +
+                         "\r\nTo use a command, try something like this! --> !Game account new" +
+                         "\r\n\r\naccount:" +
+                         "\r\n    new: Creates an account for said user." +
+                         "\r\n    showProfile: Shows the details of your account." +
+                         "\r\n    delete: Deletes the profile you own." +
+                         "\r\ndungeon:" +
+                         "\r\n    crawl: Moves you around in the dungeon.");
     }
 }

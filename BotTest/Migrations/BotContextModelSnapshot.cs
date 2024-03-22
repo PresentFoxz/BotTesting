@@ -27,8 +27,23 @@ namespace TextCommandFramework.Migrations
                     b.Property<int>("Experience")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("InventorySpace")
+                    b.Property<string>("fight")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("cName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("cExpGain")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("cHP")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("cDamage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("inventory")
+                        .HasColumnType("LIST");
 
                     b.Property<int>("Level")
                         .HasColumnType("INTEGER");

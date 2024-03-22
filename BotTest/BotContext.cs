@@ -24,14 +24,18 @@ public class UserList
 public class Profile
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
-
     public string ProfileId { get; set; }
     public string Name { get; set; }
     public ulong DiscordId { get; set; }
     public int Money { get; set; }
     public int Level { get; set; }
     public int Experience { get; set; }
-    public int InventorySpace { get; set; }
+    public List<int> inventory { get; set; }
+    public int fight { get; set; }
+    public string cName { get; set; }
+    public int cExpGain { get; set; }
+    public int cHP { get; set; }
+    public int cDamage { get; set; }
 }
 
 public class Items

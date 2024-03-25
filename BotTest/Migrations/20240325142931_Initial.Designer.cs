@@ -10,7 +10,7 @@ using TextCommandFramework;
 namespace TextCommandFramework.Migrations
 {
     [DbContext(typeof(BotContext))]
-    [Migration("20240319155943_Initial")]
+    [Migration("20240325142931_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -21,7 +21,19 @@ namespace TextCommandFramework.Migrations
 
             modelBuilder.Entity("TextCommandFramework.Profile", b =>
                 {
-                    b.Property<string>("ProfileId")
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CDamage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CExpGain")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CHP")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CName")
                         .HasColumnType("TEXT");
 
                     b.Property<ulong>("DiscordId")
@@ -30,8 +42,11 @@ namespace TextCommandFramework.Migrations
                     b.Property<int>("Experience")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("InventorySpace")
+                    b.Property<int>("Fight")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Inventory")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Level")
                         .HasColumnType("INTEGER");
@@ -42,10 +57,13 @@ namespace TextCommandFramework.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ProfileId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserListId")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ProfileId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserListId");
 

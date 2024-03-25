@@ -25,18 +25,24 @@ namespace TextCommandFramework.Migrations
                 name: "Profile",
                 columns: table => new
                 {
-                    ProfileId = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    ProfileId = table.Column<string>(type: "TEXT", nullable: true),
                     Name = table.Column<string>(type: "TEXT", nullable: true),
                     DiscordId = table.Column<ulong>(type: "INTEGER", nullable: false),
                     Money = table.Column<int>(type: "INTEGER", nullable: false),
                     Level = table.Column<int>(type: "INTEGER", nullable: false),
                     Experience = table.Column<int>(type: "INTEGER", nullable: false),
-                    InventorySpace = table.Column<int>(type: "INTEGER", nullable: false),
+                    Inventory = table.Column<string>(type: "TEXT", nullable: true),
+                    Fight = table.Column<int>(type: "INTEGER", nullable: false),
+                    CName = table.Column<string>(type: "TEXT", nullable: true),
+                    CExpGain = table.Column<int>(type: "INTEGER", nullable: false),
+                    CHP = table.Column<int>(type: "INTEGER", nullable: false),
+                    CDamage = table.Column<int>(type: "INTEGER", nullable: false),
                     UserListId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Profile", x => x.ProfileId);
+                    table.PrimaryKey("PK_Profile", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Profile_List_UserListId",
                         column: x => x.UserListId,

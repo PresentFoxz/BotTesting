@@ -21,14 +21,29 @@ namespace TextCommandFramework.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("CDamage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CExpGain")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CHP")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CName")
+                        .HasColumnType("TEXT");
+
                     b.Property<ulong>("DiscordId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Experience")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("InventorySpace")
+                    b.Property<int>("Fight")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Inventory")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Level")
                         .HasColumnType("INTEGER");

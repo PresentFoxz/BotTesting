@@ -9,6 +9,7 @@ using TextCommandFramework.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
 using System;
+using TextCommandFramework.Models;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace TextCommandFramework.Modules;

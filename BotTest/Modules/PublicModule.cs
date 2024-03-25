@@ -61,7 +61,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                     Money = 100,
                     Level = 1,
                     Experience = 0,
-                    Inventory = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    Inventory = new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                     Fight = -1,
                     CName = "",
                     CExpGain = 0,

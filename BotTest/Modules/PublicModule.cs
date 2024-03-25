@@ -28,7 +28,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
         _db.Profile.Remove(user);
-        _db.SaveChangesAsync();
+        await _db.SaveChangesAsync();
         return;
     }
 
@@ -60,12 +60,12 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                     Money = 100,
                     Level = 1,
                     Experience = 0,
-                    inventory = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                    fight = -1,
-                    cName = "",
-                    cExpGain = 0,
-                    cHP = 0, 
-                    cDamage = 0
+                    Inventory = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                    Fight = -1,
+                    CName = "",
+                    CExpGain = 0,
+                    CHP = 0, 
+                    CDamage = 0
                 };
 
                 _db.Profile.Add(profile);
@@ -77,15 +77,15 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             if (user != null && mess2 == "delete")
             {
                 _db.Profile.Remove(profile);
-                _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
 
-                await ReplyAsync("Account removed!");
+                await ReplyAsync("Account reMoved!");
                 return;
             }
 
             if (user != null && mess2 == "showProfile")
             {
-                await ReplyAsync($"This is you: {user.Name}, \nMoney: {user.Money} \nLevel: {user.Level} \nExperience: {user.Experience} \nSpace: {user.inventory.Count}");
+                await ReplyAsync($"This is you: {user.Name}, \nMoney: {user.Money} \nLevel: {user.Level} \nExperience: {user.Experience} \nSpace: {user.Inventory.Count}");
                 return;
             }
 
@@ -96,11 +96,11 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
 
-        if (mess1 == "inventory")
+        if (mess1 == "Inventory")
         {
             if (mess2 == "checkInv")
             {
-                for (int i = 0; i < user.inventory.Count; i++)
+                for (int i = 0; i < user.Inventory.Count; i++)
                 {
                     await ReplyAsync($"{i + 1}: {nameList[i]}");
                     return;
@@ -110,61 +110,61 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
         if (mess1 == "Dungeon")
         {
-            if (user != null && mess2 == "crawl" && user.fight < 0)
+            if (user != null && mess2 == "crawl" && user.Fight < 0)
             {
-                int move = rnd.Next(1, 30);
+                int Move = rnd.Next(1, 30);
 
-                if (move > 20)
+                if (Move > 20)
                 {
-                    user.fight = rnd.Next(0, 3);
+                    user.Fight = rnd.Next(0, 3);
 
                     // 0: Chicken, 1: Bee, 2: Poisonous Spider, 3: Wolf
-                    switch (user.fight)
+                    switch (user.Fight)
                     {
                         case 0:
-                            user.cName = "Chicken";
-                            user.cHP = 3;
-                            user.cDamage = 1;
-                            user.cExpGain = 5;
+                            user.CName = "Chicken";
+                            user.CHP = 3;
+                            user.CDamage = 1;
+                            user.CExpGain = 5;
                             break;
                         case 1:
-                            user.cName = "Bee";
-                            user.cHP = 8;
-                            user.cDamage = 2;
-                            user.cExpGain = 7;
+                            user.CName = "Bee";
+                            user.CHP = 8;
+                            user.CDamage = 2;
+                            user.CExpGain = 7;
                             break;
                         case 2:
-                            user.cName = "Poisonous Spider";
-                            user.cHP = 12;
-                            user.cDamage = 3;
-                            user.cExpGain = 12;
+                            user.CName = "Poisonous Spider";
+                            user.CHP = 12;
+                            user.CDamage = 3;
+                            user.CExpGain = 12;
                             break;
                         case 3:
-                            user.cName = "Wolf";
-                            user.cHP = 20;
-                            user.cDamage = 10;
-                            user.cExpGain = 25;
+                            user.CName = "Wolf";
+                            user.CHP = 20;
+                            user.CDamage = 10;
+                            user.CExpGain = 25;
                             break;
                     };
 
                 }
                 return;
             }
-            else if (user != null && mess2 == "crawl" && user.fight >= 0)
+            else if (user != null && mess2 == "crawl" && user.Fight >= 0)
             {
-                await ReplyAsync("You're in a fight! --> !Game dungeon fight");
+                await ReplyAsync("You're in a Fight! --> !Game dungeon Fight");
                 return;
             }
 
-            if (user != null && mess2 == "fight" && user.fight >= 0)
+            if (user != null && mess2 == "Fight" && user.Fight >= 0)
             {
-                int dMult = (damage * user.Level * value);
+                int DMult = (damage * user.Level * value);
 
-                 user.cHP -= (dMult);
+                 user.CHP -= (DMult);
 
-                if (user.cHP <= 0)
+                if (user.CHP <= 0)
                 {
-                    await ReplyAsync($"You win! Here's the exp you've earned: {user.cExpGain}");
+                    await ReplyAsync($"You win! Here's the exp you've earned: {user.CExpGain}");
 
                     var item = new Items();
                     Items newItem = item;
@@ -216,7 +216,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
                     await ReplyAsync($"You found {newItem.Name}! It does {newItem.Damage} damage and is worth {newItem.Value} gold!");
 
-                    user.fight = -1;
+                    user.Fight = -1;
                 }
                 return;
             }
@@ -240,9 +240,9 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                          "\r\n      delete: Deletes the profile you own." +
                          "\r\n  dungeon:" +
                          "\r\n      crawl: Moves you around in the dungeon." +
-                         "\r\n      fight: Fights the monster you're currently boxing." +
-                         "\r\n  inventory:" +
-                         "\r\n      checkInv: Checks the weapons you have in your inventory." +
+                         "\r\n      Fight: Fights the monster you're currently boxing." +
+                         "\r\n  Inventory:" +
+                         "\r\n      checkInv: Checks the weapons you have in your Inventory." +
                          "\r\n      swapHand: Swaps the weapon you are using for the one you want to swap with.");
     }
 }

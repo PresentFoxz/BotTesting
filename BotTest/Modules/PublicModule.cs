@@ -11,6 +11,7 @@ using TextCommandFramework.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
 using System;
+using TextCommandFramework.Models;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace TextCommandFramework.Modules;
@@ -60,14 +61,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                     Name = Context.User.GlobalName,
                     DiscordId = Context.User.Id,
                     Money = 100,
-                    Level = 1,
-                    Experience = 0,
-                    Inventory = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                    Fight = -1,
-                    CName = "",
-                    CExpGain = 0,
-                    CHP = 0, 
-                    CDamage = 0
+                    Level = 1
                 };
 
                 _db.Profile.Add(profile);

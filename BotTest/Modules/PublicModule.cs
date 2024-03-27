@@ -186,7 +186,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                         case 0:
                             name = nameList[0];
                             damage = 1;
-                            value = 0;
+                            value = 1;
                             break;
                         case 1:
                             name = nameList[1];
@@ -307,9 +307,9 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
 
-        if (user != null && user.Inventory[user.Inventory.Count - 1] > 0)
+        if (user != null && (user.Inventory[user.Inventory.Count - 1] >= 1 || user.Inventory[user.Inventory.Count - 1] <= 10))
         {
-            if (user.Inventory.Count - 1 > num && num > 0)
+            if (user.Inventory.Count - 1 > num && (num >= 1 || num <= 10))
             {
                 user.Inventory[num] = user.Inventory[user.Inventory.Count];
                 user.Damage[num] = user.Damage[user.Damage.Count];

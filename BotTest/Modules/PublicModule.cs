@@ -10,9 +10,10 @@ using Microsoft.EntityFrameworkCore.Design;
 using TextCommandFramework.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Collections.Generic;
-using System;
 using TextCommandFramework.Models;
 using static System.Net.Mime.MediaTypeNames;
+using Newtonsoft.Json.Linq;
+using System.Xml.Linq;
 
 namespace TextCommandFramework.Modules;
 
@@ -52,7 +53,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 {
                     Name = Context.User.GlobalName,
                     DiscordId = Context.User.Id,
-                    Money = 100,
+                    Money = 10,
                     Level = 1
                 };
 
@@ -222,8 +223,6 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                             break;
                     }
 
-                    ;
-
                     for (int i = 0; i < user.Inventory.Count - 1; i++)
                     {
                         if (user.Inventory[i] == 0)
@@ -281,6 +280,211 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
+    [Command("Shop")]
+    public async Task ShopAsync(string mess1, int item)
+    {
+        var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
+        var item1 = 0;
+        var item2 = 0;
+        var item3 = 0;
+
+        if (user != null && mess1 == "Sell")
+        {
+            user.Money += user.Value[user.ItemSelected];
+            user.Inventory[user.ItemSelected] = 0;
+            user.Damage[user.ItemSelected] = 0;
+            user.Value[user.ItemSelected] = 0;
+            await ReplyAsync($"You sold your weapon for {user.Value[user.ItemSelected]} gold!");
+            return;
+        }
+
+        if (user != null && mess1 == "View")
+        {
+            List<string> nameList = new List<string> { "Nothing", "Sword", "Spear", "Axe", "GreatSword", "Rock", "Dagger" };
+            string name = "";
+            int damage = 0;
+            int value = 0;
+            await ReplyAsync("Here is the current shop stock:");
+            // 3 random weapons
+            Random rnd1 = new Random();
+
+            switch (rnd1.Next(0, 6))
+            {
+                case 1:
+                    name = nameList[1];
+                    damage = 5;
+                    value = 10;
+                    item1 = 10;
+                    break;
+                case 2:
+                    name = nameList[2];
+                    damage = 4;
+                    value = 8;
+                    item1 = 8;
+                    break;
+                case 3:
+                    name = nameList[3];
+                    damage = 5;
+                    value = 12;
+                    item1 = 12;
+                    break;
+                case 4:
+                    name = nameList[4];
+                    damage = 8;
+                    value = 20;
+                    item1 = 20;
+                    break;
+                case 5:
+                    name = nameList[5];
+                    damage = 2;
+                    value = 1;
+                    item1 = 1;
+                    break;
+                case 6:
+                    name = nameList[6];
+                    damage = 3;
+                    value = 5;
+                    item1 = 5;
+                    break;
+            }
+
+            await ReplyAsync($"Item 1: {name} - {damage} damage. Costs {value} gold.");
+
+            switch (rnd1.Next(0, 6))
+            {
+                case 1:
+                    name = nameList[1];
+                    damage = 5;
+                    value = 10;
+                    item2 = 10;
+                    break;
+                case 2:
+                    name = nameList[2];
+                    damage = 4;
+                    value = 8;
+                    item2 = 8;
+                    break;
+                case 3:
+                    name = nameList[3];
+                    damage = 5;
+                    value = 12;
+                    item2 = 12;
+                    break;
+                case 4:
+                    name = nameList[4];
+                    damage = 8;
+                    value = 20;
+                    item2 = 20;
+                    break;
+                case 5:
+                    name = nameList[5];
+                    damage = 2;
+                    value = 1;
+                    item2 = 1;
+                    break;
+                case 6:
+                    name = nameList[6];
+                    damage = 3;
+                    value = 5;
+                    item2 = 5;
+                    break;
+            }
+
+            await ReplyAsync($"Item 2: {name} - {damage} damage. Costs {value} gold.");
+
+            switch (rnd1.Next(0, 6))
+            {
+                case 1:
+                    name = nameList[1];
+                    damage = 5;
+                    value = 10;
+                    item3 = 10;
+                    break;
+                case 2:
+                    name = nameList[2];
+                    damage = 4;
+                    value = 8;
+                    item3 = 8;
+                    break;
+                case 3:
+                    name = nameList[3];
+                    damage = 5;
+                    value = 12;
+                    item3 = 12;
+                    break;
+                case 4:
+                    name = nameList[4];
+                    damage = 8;
+                    value = 20;
+                    item3 = 20;
+                    break;
+                case 5:
+                    name = nameList[5];
+                    damage = 2;
+                    value = 1;
+                    item3 = 1;
+                    break;
+                case 6:
+                    name = nameList[6];
+                    damage = 3;
+                    value = 5;
+                    item3 = 5;
+                    break;
+            }
+
+            await ReplyAsync($"Item 3: {name} - {damage} damage. Costs {value} gold.");
+        }
+        
+        if (user != null && mess1 == "Buy" && item == 1)
+        {
+            // add the weapon to the inventory
+            if (user.Money >= user.Value[item1])
+            {
+                user.Money -= user.Value[user.ItemSelected];
+                user.Inventory[user.ItemSelected] = item;
+                user.Damage[user.ItemSelected] = 5;
+                user.Value[user.ItemSelected] = 10;
+                await ReplyAsync("You bought the weapon!");
+            }
+            else
+            {
+                await ReplyAsync("You don't have enough money!");
+            }
+        }
+        
+        else if (user != null && mess1 == "Buy" && item == 2)
+        {
+            if (user.Money >= user.Value[item2])
+            {
+                user.Money -= user.Value[user.ItemSelected];
+                user.Inventory[user.ItemSelected] = item;
+                user.Damage[user.ItemSelected] = 4;
+                user.Value[user.ItemSelected] = 8;
+                await ReplyAsync("You bought the weapon!");
+            }
+            else
+            {
+                await ReplyAsync("You don't have enough money!");
+            }
+        }
+        
+        else if (user != null && mess1 == "Buy" && item == 3)
+        {
+            if (user.Money >= user.Value[item3])
+            {
+                user.Money -= user.Value[user.ItemSelected];
+                user.Inventory[user.ItemSelected] = item;
+                user.Damage[user.ItemSelected] = 5;
+                user.Value[user.ItemSelected] = 12;
+                await ReplyAsync("You bought the weapon!");
+            }
+            else
+            {
+                await ReplyAsync("You don't have enough money!");
+            }
+        }
+    }
+
     [Command("Help")]
     public async Task HelpAsync()
     {
@@ -300,7 +504,11 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                          "\r\n  SetItem: This is used for the item that you have collected recently." +
                          "\r\n      Remove: Removes the item you currently found after fighting ( use this if u don't want the item )." +
                          "\r\n\r\n!SetItem: Another cmd for swapping the items." +
-                         "\r\n  ( Input a number from 1 - 10 ).");
+                         "\r\n  ( Input a number from 1 - 10 )." +
+                         "\r\n\r\n!Shop" +
+                         "\r\n      Sell: Sells the weapon you are currently using." +
+                         "\r\n      View: Shows the weapons you can buy." +
+                         "\r\n      Buy [ItemId]: Purchases a weapon. Shop stock is randomly generated. Be sure to swap to an empty spot in your inventory first");
 
     }
 

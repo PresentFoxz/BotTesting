@@ -284,9 +284,15 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     public async Task ShopAsync(string mess1, int item)
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
-        var item1 = 0;
-        var item2 = 0;
-        var item3 = 0;
+        var value1 = 0;
+        var value2 = 0;
+        var value3 = 0;
+        var damage1 = 0;
+        var damage2 = 0;
+        var damage3 = 0;
+        var itemId1 = 0;
+        var itemId2 = 0;
+        var itemId3 = 0;
 
         if (user != null && mess1 == "Sell")
         {
@@ -302,8 +308,6 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         {
             List<string> nameList = new List<string> { "Nothing", "Sword", "Spear", "Axe", "GreatSword", "Rock", "Dagger" };
             string name = "";
-            int damage = 0;
-            int value = 0;
             await ReplyAsync("Here is the current shop stock:");
             // 3 random weapons
             Random rnd1 = new Random();
@@ -312,139 +316,138 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             {
                 case 1:
                     name = nameList[1];
-                    damage = 5;
-                    value = 10;
-                    item1 = 10;
+                    damage1 = 5;
+                    value1 = 10;
+                    itemId1 = 1;
                     break;
                 case 2:
                     name = nameList[2];
-                    damage = 4;
-                    value = 8;
-                    item1 = 8;
+                    damage1 = 4;
+                    value1 = 8;
+                    itemId1 = 2;
                     break;
                 case 3:
                     name = nameList[3];
-                    damage = 5;
-                    value = 12;
-                    item1 = 12;
+                    damage1 = 5;
+                    value1 = 12;
+                    itemId1 = 3;
                     break;
                 case 4:
                     name = nameList[4];
-                    damage = 8;
-                    value = 20;
-                    item1 = 20;
+                    damage1 = 8;
+                    value1 = 20;
+                    itemId1 = 4;
                     break;
                 case 5:
                     name = nameList[5];
-                    damage = 2;
-                    value = 1;
-                    item1 = 1;
+                    damage1 = 2;
+                    value1 = 1;
+                    itemId1 = 5;
                     break;
                 case 6:
                     name = nameList[6];
-                    damage = 3;
-                    value = 5;
-                    item1 = 5;
+                    damage1 = 3;
+                    value1 = 5;
+                    itemId1 = 6;
                     break;
             }
 
-            await ReplyAsync($"Item 1: {name} - {damage} damage. Costs {value} gold.");
+            await ReplyAsync($"Item 1: {name} - {damage1} damage. Costs {value1} gold.");
 
             switch (rnd1.Next(0, 6))
             {
                 case 1:
                     name = nameList[1];
-                    damage = 5;
-                    value = 10;
-                    item2 = 10;
+                    damage2 = 5;
+                    value2 = 10;
+                    itemId2 = 1;
                     break;
                 case 2:
                     name = nameList[2];
-                    damage = 4;
-                    value = 8;
-                    item2 = 8;
+                    damage2 = 4;
+                    value2 = 8;
+                    itemId2 = 2;
                     break;
                 case 3:
                     name = nameList[3];
-                    damage = 5;
-                    value = 12;
-                    item2 = 12;
+                    damage2 = 5;
+                    value2 = 12;
+                    itemId2 = 3;
                     break;
                 case 4:
                     name = nameList[4];
-                    damage = 8;
-                    value = 20;
-                    item2 = 20;
+                    damage2 = 8;
+                    value2 = 20;
+                    itemId2 = 4;
                     break;
                 case 5:
                     name = nameList[5];
-                    damage = 2;
-                    value = 1;
-                    item2 = 1;
+                    damage2 = 2;
+                    value2 = 1;
+                    itemId2 = 5;
                     break;
                 case 6:
                     name = nameList[6];
-                    damage = 3;
-                    value = 5;
-                    item2 = 5;
+                    damage2 = 3;
+                    value2 = 5;
+                    itemId2 = 6;
                     break;
             }
 
-            await ReplyAsync($"Item 2: {name} - {damage} damage. Costs {value} gold.");
+            await ReplyAsync($"Item 2: {name} - {damage2} damage. Costs {value2} gold.");
 
             switch (rnd1.Next(0, 6))
             {
                 case 1:
                     name = nameList[1];
-                    damage = 5;
-                    value = 10;
-                    item3 = 10;
+                    damage3 = 5;
+                    value3 = 10;
+                    itemId3 = 1;
                     break;
                 case 2:
                     name = nameList[2];
-                    damage = 4;
-                    value = 8;
-                    item3 = 8;
+                    damage3 = 4;
+                    value3 = 8;
+                    itemId3 = 2;
                     break;
                 case 3:
                     name = nameList[3];
-                    damage = 5;
-                    value = 12;
-                    item3 = 12;
+                    damage3 = 5;
+                    value3 = 12;
+                    itemId3 = 3;
                     break;
                 case 4:
                     name = nameList[4];
-                    damage = 8;
-                    value = 20;
-                    item3 = 20;
+                    damage3 = 8;
+                    value3 = 20;
+                    itemId3 = 4;
                     break;
                 case 5:
                     name = nameList[5];
-                    damage = 2;
-                    value = 1;
-                    item3 = 1;
+                    damage3 = 2;
+                    value3 = 1;
+                    itemId3 = 5;
                     break;
                 case 6:
                     name = nameList[6];
-                    damage = 3;
-                    value = 5;
-                    item3 = 5;
+                    damage3 = 3;
+                    value3 = 5;
+                    itemId3 = 6;
                     break;
             }
 
-            await ReplyAsync($"Item 3: {name} - {damage} damage. Costs {value} gold.");
+            await ReplyAsync($"Item 3: {name} - {damage3} damage. Costs {value3} gold.");
         }
         
         if (user != null && mess1 == "Buy" && item == 1)
         {
-            // add the weapon to the inventory
-            if (user.Money >= user.Value[item1])
+            if (user.Money >= user.Value[value1])
             {
-                user.Money -= user.Value[user.ItemSelected];
-                user.Inventory[user.ItemSelected] = item;
-                user.Damage[user.ItemSelected] = 5;
-                user.Value[user.ItemSelected] = 10;
-                await ReplyAsync("You bought the weapon!");
+                user.Money -= user.Value[value1];
+                user.Inventory[user.ItemSelected] = itemId1;
+                user.Damage[user.ItemSelected] = damage1;
+                user.Value[user.ItemSelected] = value1;
+                await ReplyAsync($"You bought the weapon for {value1} gold!");
             }
             else
             {
@@ -452,15 +455,15 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
         
-        else if (user != null && mess1 == "Buy" && item == 2)
+        if (user != null && mess1 == "Buy" && item == 2)
         {
-            if (user.Money >= user.Value[item2])
+            if (user.Money >= user.Value[value2])
             {
                 user.Money -= user.Value[user.ItemSelected];
-                user.Inventory[user.ItemSelected] = item;
-                user.Damage[user.ItemSelected] = 4;
-                user.Value[user.ItemSelected] = 8;
-                await ReplyAsync("You bought the weapon!");
+                user.Inventory[user.ItemSelected] = itemId2;
+                user.Damage[user.ItemSelected] = damage2;
+                user.Value[user.ItemSelected] = value2;
+                await ReplyAsync($"You bought the weapon for {value2} gold!");
             }
             else
             {
@@ -468,20 +471,25 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
         
-        else if (user != null && mess1 == "Buy" && item == 3)
+        if (user != null && mess1 == "Buy" && item == 3)
         {
-            if (user.Money >= user.Value[item3])
+            if (user.Money >= user.Value[value3])
             {
                 user.Money -= user.Value[user.ItemSelected];
-                user.Inventory[user.ItemSelected] = item;
-                user.Damage[user.ItemSelected] = 5;
-                user.Value[user.ItemSelected] = 12;
-                await ReplyAsync("You bought the weapon!");
+                user.Inventory[user.ItemSelected] = itemId3;
+                user.Damage[user.ItemSelected] = damage3;
+                user.Value[user.ItemSelected] = value3;
+                await ReplyAsync($"You bought the weapon for {value3}!");
             }
             else
             {
                 await ReplyAsync("You don't have enough money!");
             }
+        }
+
+        if (user == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
         }
     }
 

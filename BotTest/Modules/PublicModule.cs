@@ -280,6 +280,78 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
+    // Adding/removing money, levels, etc. for testing purposes
+    [Command("Test")]
+    public async Task TestAsync(string mess1, string mess2, int amount)
+    {
+        var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
+
+        if (user == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+        }
+
+        if (mess1 == "Hp")
+        {
+
+            if (user != null && mess2 == "Add")
+            {
+                user.Hp += amount;
+                await ReplyAsync($"Added {amount} HP");
+            }
+            else if (user != null && mess2 == "Remove")
+            {
+                user.Hp -= amount;
+                await ReplyAsync($"Removed {amount} HP");
+            }
+        }
+
+        if (mess1 == "Money")
+        {
+
+            if (user != null && mess2 == "Add")
+            {
+                user.Money += amount;
+                await ReplyAsync($"Added {amount} gold");
+            }
+            else if (user != null && mess2 == "Remove")
+            {
+                user.Money -= amount;
+                await ReplyAsync($"Removed {amount} gold");
+            }
+        }
+
+        if (mess1 == "Level")
+        {
+
+            if (user != null && mess2 == "Add")
+            {
+                user.Level += amount;
+                await ReplyAsync($"Added {amount} level(s)");
+            }
+            else if (user != null && mess2 == "Remove")
+            {
+                user.Level -= amount;
+                await ReplyAsync($"Removed {amount} level(s)");
+            }
+        }
+
+        if (mess1 == "Experience")
+        {
+
+            if (user != null && mess2 == "Add")
+            {
+                user.Experience += amount;
+                await ReplyAsync($"Added {amount} experience");
+            }
+            else if (user != null && mess2 == "Remove")
+            {
+                user.Experience -= amount;
+                await ReplyAsync($"Removed {amount} experience");
+            }
+        }
+    }
+
     [Command("Shop")]
     public async Task ShopAsync(string mess1, int item)
     {
@@ -309,7 +381,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             List<string> nameList = new List<string> { "Nothing", "Sword", "Spear", "Axe", "GreatSword", "Rock", "Dagger" };
             string name = "";
             await ReplyAsync("Here is the current shop stock:");
-            // 3 random weapons
+            
             Random rnd1 = new Random();
 
             switch (rnd1.Next(0, 6))
@@ -498,6 +570,19 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     {
         await ReplyAsync("You will always put a space between your commands!" +
                          "\r\nTo use a command, try something like this! --> !Game account new" +
+                         "\r\n\r\n!Test" +
+                         "\r\n  Hp:" +
+                         "\r\n      Add: Adds HP to your account." +
+                         "\r\n      Remove: Removes HP from your account." +
+                         "\r\n  Money:" +
+                         "\r\n      Add: Adds money to your account." +
+                         "\r\n      Remove: Removes money from your account." +
+                         "\r\n  Level:" +
+                         "\r\n      Add: Adds levels to your account." +
+                         "\r\n      Remove: Removes levels from your account." +
+                         "\r\n  Experience:" +
+                         "\r\n      Add: Adds experience to your account." +
+                         "\r\n      Remove: Removes experience from your account." +
                          "\r\n\r\n!Game" +
                          "\r\n  Account:" +
                          "\r\n      New: Creates an account for said user." +
@@ -515,8 +600,8 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                          "\r\n  ( Input a number from 1 - 10 )." +
                          "\r\n\r\n!Shop" +
                          "\r\n      Sell: Sells the weapon you are currently using." +
-                         "\r\n      View: Shows the weapons you can buy." +
-                         "\r\n      Buy [ItemId]: Purchases a weapon. Shop stock is randomly generated. Be sure to swap to an empty spot in your inventory first");
+                         "\r\n      View: Shows the weapons you can buy. Shop stock is randomly generated." +
+                         "\r\n      Buy [Number (1-3)]: Purchases a weapon. Be sure to swap to an empty spot in your inventory first.");
 
     }
 

@@ -38,27 +38,27 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     {
         var profile = await _db.Profile.FirstOrDefaultAsync(usr => usr.DiscordId == Context.User.Id);
         var weapons = await _db.Weapon.OrderBy(w => w.Id).ToListAsync();
-        
+
         switch (subCommand)
         {
             case "Account":
-                await HandleGameAccountAsync(profile, mess2, nameLookup, weapons);
+                await HandleGameAccountAsync(mess2, nameLookup, profile, weapons);
                 break;
 
             case "Inventory":
-                await HandleInventoryAsync(profile, mess2, nameLookup, weapons);
+                await HandleInventoryAsync(mess2, nameLookup, profile, weapons);
                 break;
 
             case "Dungeon":
-                await HandleDungeonAsync(profile, mess2, nameLookup, weapons);
+                await HandleDungeonAsync(mess2, nameLookup, profile, weapons);
                 break;
 
             case "SetItem":
-                await HandleSetItemAsync(profile, mess2, nameLookup, weapons);
+                await HandleSetItemAsync(mess2, nameLookup, profile, weapons);
                 break;
 
             case "AllItems":
-                await HandleAllItemsAsync(profile, mess2, nameLookup, weapons);
+                await HandleAllItemsAsync(mess2, nameLookup, profile, weapons);
                 break;
 
             default:
@@ -67,7 +67,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleAllItemsAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
+    public async Task HandleAllItemsAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
         if (mess2 == "All")
         {
@@ -81,7 +81,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleSetItemAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
+    public async Task HandleSetItemAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
         if (mess2 == "Remove" && profile.Inventory[profile.Inventory.Count] > 0)
         {
@@ -91,7 +91,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleDungeonAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
+    public async Task HandleDungeonAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
         Random rnd = new Random();
 
@@ -202,7 +202,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             await ReplyAsync("You just swung at mid air like a crazy man! Are you shadow boxing?");
         }
     }
-    public async Task HandleInventoryAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
+    public async Task HandleInventoryAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
         if (mess2 == "CheckInv")
         {
@@ -222,7 +222,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleGameAccountAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
+    public async Task HandleGameAccountAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
         if (profile != null && mess2 == "New")
         {

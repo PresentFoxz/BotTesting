@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using TextCommandFramework.Models;
 

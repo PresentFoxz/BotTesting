@@ -76,7 +76,7 @@ namespace TextCommandFramework.Migrations
 
                     b.HasIndex("UserListId");
 
-                    b.ToTable("Profile");
+                    b.ToTable("Profile", (string)null);
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.UserList", b =>
@@ -86,7 +86,7 @@ namespace TextCommandFramework.Migrations
 
                     b.HasKey("UserListId");
 
-                    b.ToTable("List");
+                    b.ToTable("List", (string)null);
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.Weapon", b =>

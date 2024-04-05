@@ -26,16 +26,17 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         _db = db;
     }
 
+    /*
+    [Command("HateMail")]
+    public async Task HateMailAsync()
+    {
+        await ReplyAsync("kys");
+    }
+    */
     [Command("Game")]
-    public async Task GameAsync(string subCommand, string mess2, string nameLookup)
+    public async Task GameAsync(string subCommand = "", string mess2 = "", string nameLookup = "")
     {
         var profile = await _db.Profile.FirstOrDefaultAsync(usr => usr.DiscordId == Context.User.Id);
-        /*
-        var weapons = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Name).ToListAsync();
-        var id = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Id).ToListAsync();
-        var value = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Value).ToListAsync();
-        var damage = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Damage).ToListAsync();
-        */
         var weapons = await _db.Weapon.OrderBy(w => w.Id).ToListAsync();
         
         switch (subCommand)
@@ -354,19 +355,11 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     public async Task ShopAsync(string mess1, int item)
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
-        var value1 = 0;
-        var value2 = 0;
-        var value3 = 0;
-        var damage1 = 0;
-        var damage2 = 0;
-        var damage3 = 0;
-        var itemId1 = 0;
-        var itemId2 = 0;
-        var itemId3 = 0;
+        var value1 = 0; var value2 = 0; var value3 = 0;
+        var damage1 = 0; var damage2 = 0; var damage3 = 0;
+        var itemId1 = 0; var itemId2 = 0; var itemId3 = 0;
         List<string> nameList = new List<string> { "Nothing", "Sword", "Spear", "Axe", "GreatSword", "Rock", "Dagger" };
-        var name1 = "";
-        var name2 = "";
-        var name3 = "";
+        var name1 = ""; var name2 = ""; var name3 = "";
 
         Random rnd1 = new Random();
         switch (rnd1.Next(1, 6))

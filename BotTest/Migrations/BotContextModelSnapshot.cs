@@ -76,7 +76,7 @@ namespace TextCommandFramework.Migrations
 
                     b.HasIndex("UserListId");
 
-                    b.ToTable("Profile", (string)null);
+                    b.ToTable("Profile");
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.UserList", b =>
@@ -86,7 +86,7 @@ namespace TextCommandFramework.Migrations
 
                     b.HasKey("UserListId");
 
-                    b.ToTable("List", (string)null);
+                    b.ToTable("List");
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.Weapon", b =>
@@ -95,12 +95,79 @@ namespace TextCommandFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Damage")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Value")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Weapon", (string)null);
+                    b.ToTable("Weapon");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Damage = 1,
+                            Level = 1,
+                            Name = "Fists",
+                            Value = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Damage = 5,
+                            Level = 1,
+                            Name = "Sword",
+                            Value = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Damage = 5,
+                            Level = 1,
+                            Name = "Spear",
+                            Value = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Damage = 7,
+                            Level = 1,
+                            Name = "Axe",
+                            Value = 5
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Damage = 12,
+                            Level = 1,
+                            Name = "GreatSword",
+                            Value = 8
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Damage = 200000,
+                            Level = 1,
+                            Name = "Rock",
+                            Value = 10000
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Damage = 3,
+                            Level = 1,
+                            Name = "Dagger",
+                            Value = 4
+                        });
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.Profile", b =>

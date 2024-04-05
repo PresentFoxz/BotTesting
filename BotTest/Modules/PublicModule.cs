@@ -28,36 +28,34 @@ public class PublicModule : ModuleBase<SocketCommandContext>
     public async Task GameAsync(string subCommand, string mess2, string nameLookup)
     {
         var profile = await _db.Profile.FirstOrDefaultAsync(usr => usr.DiscordId == Context.User.Id);
+        /*
         var weapons = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Name).ToListAsync();
         var id = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Id).ToListAsync();
         var value = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Value).ToListAsync();
         var damage = await _db.Weapon.OrderBy(w => w.Id).Select(w => w.Damage).ToListAsync();
-
-        if (subCommand == "none")
-        {
-            await ReplyAsync("You moved, but at what cost?");
-            return;
-        }
+        */
+        var weapons = await _db.Weapon.OrderBy(w => w.Id).ToListAsync();
+        
         switch (subCommand)
         {
             case "Account":
-                await HandleGameAccountAsync(profile, mess2, nameLookup, weapons, id, damage, value);
+                await HandleGameAccountAsync(profile, mess2, nameLookup, weapons);
                 break;
 
             case "Inventory":
-                await HandleInventoryAsync(profile, mess2, nameLookup, weapons, id, damage, value);
+                await HandleInventoryAsync(profile, mess2, nameLookup, weapons);
                 break;
 
             case "Dungeon":
-                await HandleDungeonAsync(profile, mess2, nameLookup, weapons, id, damage, value);
+                await HandleDungeonAsync(profile, mess2, nameLookup, weapons);
                 break;
 
             case "SetItem":
-                await HandleSetItemAsync(profile, mess2, nameLookup, weapons, id, damage, value);
+                await HandleSetItemAsync(profile, mess2, nameLookup, weapons);
                 break;
 
             case "AllItems":
-                await HandleAllItemsAsync(profile, mess2, nameLookup, weapons, id, damage, value);
+                await HandleAllItemsAsync(profile, mess2, nameLookup, weapons);
                 break;
 
             default:
@@ -66,8 +64,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleAllItemsAsync(Profile profile, string mess2, string nameLookup, List<string> weapons, List<int> id, List<int> damage,
-        List<int> value)
+    public async Task HandleAllItemsAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
     {
         if (mess2 == "All")
         {
@@ -81,7 +78,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleSetItemAsync(Profile profile, string mess2, string nameLookup, List<string> weapons, List<int> id, List<int> damage, List<int> value)
+    public async Task HandleSetItemAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
     {
         if (mess2 == "Remove" && profile.Inventory[profile.Inventory.Count] > 0)
         {
@@ -91,7 +88,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleDungeonAsync(Profile profile, string mess2, string nameLookup, List<string> weapons, List<int> id, List<int> damage, List<int> value)
+    public async Task HandleDungeonAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
     {
         Random rnd = new Random();
 
@@ -168,13 +165,21 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 profile.CExpGain = 0;
                 int random = rnd.Next(0, 6);
 
-                profile.Inventory[10] = id[random];
-                profile.Damage[10] = damage[random];
-                profile.Value[10] = value[random];
+                profile.Inventory[10] = weapons[random].Id;
+                profile.Damage[10] = weapons[random].Damage;
+                profile.Value[10] = weapons[random].Value;
 
-                await ReplyAsync($"You found {id[random]}!" +
-                                 $"\rIt does {damage[random]} damage!" +
-                                 $"\rIt has a value of {value[random]}");
+                await ReplyAsync($"You found {weapons[random].Id}!" +
+                                 $"\rIt does {weapons[random].Damage} damage!" +
+                                 $"\rIt has a value of {weapons[random].Value}");
+
+                for (int i = 0; i < 9; i++)
+                {
+                    if (profile.Inventory[i] > 0)
+                    {
+                        detect = 1;
+                    }
+                }
 
                 if (detect == 0)
                 {
@@ -184,6 +189,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                         "\rIf you don't see anything you wanna swap it with, type in ( !Game SetItem Remove )!");
                 }
 
+                detect = 0;
                 profile.Fight = -1;
             }
             return;
@@ -193,7 +199,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             await ReplyAsync("You just swung at mid air like a crazy man! Are you shadow boxing?");
         }
     }
-    public async Task HandleInventoryAsync(Profile profile, string mess2, string nameLookup, List<string> weapons, List<int> id, List<int> damage, List<int> value)
+    public async Task HandleInventoryAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
     {
         if (mess2 == "CheckInv")
         {
@@ -213,7 +219,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
-    public async Task HandleGameAccountAsync(Profile profile, string mess2, string nameLookup, List<string> weapons, List<int> id, List<int> damage, List<int> value)
+    public async Task HandleGameAccountAsync(Profile profile, string mess2, string nameLookup, List<Weapon> weapons)
     {
         if (profile != null && mess2 == "New")
         {

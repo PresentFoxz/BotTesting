@@ -15,8 +15,8 @@ public class Profile
     public int Level { get; set; } = 1;
     public int Experience { get; set; } = 0;
     public List<int> Inventory { get; set; } = new int[11].ToList();
-    public List<int> Damage { get; set; } = new List<int> { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-    public List<int> Value { get; set; } = new List<int> { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    public List<int> Damage { get; set; } = new List<int> { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    public List<int> Value { get; set; } = new List<int> { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
     public int ItemSelected { get; set; } = 0;
     public int Fight { get; set; } = -1;
     public string CName { get; set; } = string.Empty;

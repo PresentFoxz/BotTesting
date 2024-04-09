@@ -26,13 +26,44 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         _db = db;
     }
 
-    /*
-    [Command("HateMail")]
-    public async Task HateMailAsync()
+    [Command("WTest")]
+    public async Task TestAsync(string subCmd = "", int rah = 0)
     {
-        await ReplyAsync("kys");
+        var profile = await _db.Profile.FirstOrDefaultAsync(usr => usr.DiscordId == Context.User.Id);
+        var weapons = await _db.Weapon.OrderBy(w => w.Id).ToListAsync();
+
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            if (weapons[i].Name == subCmd)
+            {
+                if (rah - 1 > profile.Inventory.Count - 1)
+                {
+                    await ReplyAsync($"Too big of a number!");
+                    break;
+                }
+
+                if (rah - 1 < 0)
+                {
+                    await ReplyAsync($"Too small of a number!");
+                    break;
+                }
+
+                profile.Inventory[rah - 1] = weapons[i].Id;
+                profile.Damage[rah - 1] = weapons[i].Damage;
+                profile.Value[rah - 1] = weapons[i].Value;
+                await ReplyAsync($"You now own {weapons[i].Name}!");
+
+                if (rah == profile.Inventory.Count)
+                {
+                    await ReplyAsync(
+                        $"The item {weapons[i].Name} is now in the reserved slot, use cmd ( !Game SetItem Replace [ any number from 1 to MaxInv ]!");
+                }
+
+                break;
+            }
+        }
     }
-    */
+
     [Command("Game")]
     public async Task GameAsync(string subCommand = "", string mess2 = "", string nameLookup = "")
     {
@@ -61,14 +92,45 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 await HandleAllItemsAsync(mess2, nameLookup, profile, weapons);
                 break;
 
+            case "Shop":
+                HandleShopAsync(mess2, nameLookup, profile, weapons);
+                break;
+
+            case "Save":
+                UpdateProfileAsync(profile);
+                break;
+
+            case "Help":
+                HelpAsync();
+                break;
+
             default:
                 await ReplyAsync("Unknown command entered " + subCommand);
                 break;
         }
     }
 
+    public async Task UpdateProfileAsync(Profile profile)
+    {
+        if (profile == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+            return;
+        }
+
+        _db.Update(profile);
+        await _db.SaveChangesAsync();
+        return;
+    }
+
     public async Task HandleAllItemsAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
+        if (profile == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+            return;
+        }
+
         if (mess2 == "All")
         {
             await ReplyAsync($"Here are the items in the shop!");
@@ -76,23 +138,56 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             {
                 await ReplyAsync($"{i}: ?");
             }
-
-            return;
         }
+
+        UpdateProfileAsync(profile);
+        return;
     }
 
     public async Task HandleSetItemAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
+        if (profile == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+            return;
+        }
+
         if (mess2 == "Remove" && profile.Inventory[profile.Inventory.Count] > 0)
         {
+            await ReplyAsync($"You lost your item {weapons[profile.Inventory[10]].Name} for good.");
             profile.Inventory[profile.Inventory.Count] = 0;
             profile.Damage[profile.Damage.Count] = 0;
             profile.Value[profile.Value.Count] = 0;
+        }
+
+        if (mess2 == "Replace")
+        {
+            if (profile != null && (int.Parse(nameLookup) - 1) >= 0 || (int.Parse(nameLookup) - 1) <= 9 && profile.Inventory.Count - 1 != 0)
+            {
+                await ReplyAsync(
+                    $"You lost your item {weapons[profile.Inventory[int.Parse(nameLookup) - 1]].Name} for good.");
+                await ReplyAsync(
+                    $"Its now replaced with {weapons[profile.Inventory[profile.Inventory.Count - 1] - 1].Name}.");
+
+                profile.Inventory[(int.Parse(nameLookup) - 1)] = profile.Inventory[profile.Inventory.Count - 1];
+                profile.Damage[(int.Parse(nameLookup) - 1)] = profile.Damage[profile.Damage.Count - 1];
+                profile.Value[(int.Parse(nameLookup) - 1)] = profile.Value[profile.Value.Count - 1];
+
+                profile.Inventory[profile.Inventory.Count - 1] = 0;
+                profile.Damage[profile.Damage.Count - 1] = 0;
+                profile.Value[profile.Value.Count - 1] = 0;
+            }
         }
     }
 
     public async Task HandleDungeonAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
+        if (profile == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+            return;
+        }
+
         Random rnd = new Random();
 
         int detect = 0;
@@ -104,12 +199,6 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             if (Move < 20)
             {
                 await ReplyAsync("You moved, but at what cost?");
-                return;
-            }
-
-            if (mess2 == "Crawl" && profile.Fight >= 0)
-            {
-                await ReplyAsync("You're in a Fight! --> !Game dungeon Fight");
                 return;
             }
             else if (Move > 20)
@@ -148,7 +237,12 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 ;
             }
 
-            await ReplyAsync($"You're in a Fight with: {profile.CName}! --> !Game dungeon Fight");
+            await ReplyAsync($"You're in a Fight with: {profile.CName}! --> !Game Dungeon Fight");
+        }
+
+        if (mess2 == "Crawl" && profile.Fight >= 0)
+        {
+            await ReplyAsync($"You're in a Fight with: {profile.CName}! --> !Game Dungeon Fight");
             return;
         }
 
@@ -157,10 +251,10 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             int DMult = (profile.Damage[profile.ItemSelected] * profile.Level * profile.Value[profile.ItemSelected]);
             profile.CHP -= (DMult);
 
-            await ReplyAsync($"You swung at your opponent and did {DMult} damage!");
-            await ReplyAsync($"Your Hp: {profile.Hp}");
-            await ReplyAsync($"{profile.CName}s Hp: {profile.CHP}");
-
+            await ReplyAsync($"You swung at your opponent and did {DMult} damage!" +
+                             $"\rYour Hp: {profile.Hp}" + 
+                             $"\r{profile.CName}s Hp: {profile.CHP}");
+            
             if (profile.CHP <= 0)
             {
                 await ReplyAsync($"You win! Here's the exp you've earned: {profile.CExpGain}");
@@ -195,41 +289,71 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 detect = 0;
                 profile.Fight = -1;
             }
-            return;
         }
         else if (profile != null && mess2 == "Fight" && profile.Fight == -1)
         {
             await ReplyAsync("You just swung at mid air like a crazy man! Are you shadow boxing?");
         }
+
+        UpdateProfileAsync(profile);
+        return;
     }
     public async Task HandleInventoryAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
+        if (profile == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+            return;
+        }
+
         if (mess2 == "CheckInv")
         {
+            List<string> yourInventory = new List<string>();
+
             for (int i = 0; i < profile.Inventory.Count - 1; i++)
             {
                 if (profile.ItemSelected == i)
                 {
-                    await ReplyAsync($"{i + 1}: {i} ( Using )");
+                    yourInventory.Add($"{i + 1}: {weapons[profile.Inventory[i]].Name} ( Using )");
                 }
                 else
                 {
-                    await ReplyAsync($"{i + 1}: {i}");
+                    yourInventory.Add($"{i + 1}: {weapons[profile.Inventory[i]].Name}");
                 }
             }
-
-            return;
+            string inventoryMessage = string.Join("\n", yourInventory);
+            await ReplyAsync($"This is your Inventory {profile.Name}:\n{inventoryMessage}");
         }
+
+        if (mess2 == "ItemSwap")
+        {
+            profile.ItemSelected = (int.Parse(nameLookup) - 1);
+
+            if (profile.ItemSelected >= 0 && profile.ItemSelected <= 9)
+            {
+                await ReplyAsync($"You are using {weapons[profile.Inventory[profile.ItemSelected] - 1].Name} now.");
+            }
+            else if (profile.ItemSelected > 9)
+            {
+                await ReplyAsync($"You don't own this many inventory slots!");
+            }
+            else if (profile.ItemSelected < 0)
+            {
+                await ReplyAsync($"Inventory starts at slot 1!");
+            }
+            else
+            {
+                await ReplyAsync($"Error, womp womp.");
+            }
+        }
+
+        UpdateProfileAsync(profile);
+        return;
     }
 
     public async Task HandleGameAccountAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
-        if (profile != null && mess2 == "New")
-        {
-            await ReplyAsync("You already have a profile!");
-            return;
-        }
-        else if (profile == null && mess2 == "New")
+        if (profile == null && mess2 == "New")
         {
             var newProfile = new Profile
             {
@@ -242,7 +366,10 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             _db.Profile.Add(newProfile);
             await _db.SaveChangesAsync();
             await ReplyAsync("Account created!");
-            return;
+        }
+        else if (profile != null && mess2 == "New")
+        {
+            await ReplyAsync("You already have a profile!");
         }
 
         if (profile != null && mess2 == "Delete")
@@ -250,40 +377,48 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             _db.Profile.Remove(profile);
             await _db.SaveChangesAsync();
             await ReplyAsync("Account removed!");
-            return;
         }
 
-        if (profile != null && mess2 == "ShowProfile")
+        if (profile != null && mess2 == "Me")
         {
-            await ReplyAsync($"This is you: {profile.Name}, \nMoney: {profile.Money} \nLevel: {profile.Level} \nExperience: {profile.Experience} \nSpace: {profile.Inventory.Count - 1}");
-            return;
+            await ReplyAsync($"This is: {profile.Name} " +
+                             $"\nMoney: {profile.Money} " +
+                             $"\nLevel: {profile.Level} " +
+                             $"\nExperience: {profile.Experience} " +
+                             $"\nSpace: {profile.Inventory.Count - 1}");
         }
 
         if (profile != null && mess2 == "ProfileLookup")
         {
             var other = await _db.Profile.FirstOrDefaultAsync(usr => usr.Name == nameLookup);
-
+            
             if (other != null)
-                await ReplyAsync($"This is you: {other.Name}, \nMoney: {other.Money} \nLevel: {other.Level} \nExperience: {other.Experience} \nSpace: {other.Inventory.Count - 1}");
+                await ReplyAsync($"This is: {other.Name} " +
+                                 $"\nMoney: {other.Money} " +
+                                 $"\nLevel: {other.Level} " +
+                                 $"\nExperience: {other.Experience} " +
+                                 $"\nSpace: {other.Inventory.Count - 1}");
             else
             {
                 await ReplyAsync($"Sorry but I wasn't able to find {nameLookup}");
             }
-            return;
         }
 
         if (profile == null && mess2 != "New")
         {
             await ReplyAsync("Account not found!");
-            return;
         }
+
+        UpdateProfileAsync(profile);
+        return;
     }
 
     // Adding/removing money, levels, etc. for testing purposes
     [Command("Test")]
-    public async Task TestAsync(string mess1, string mess2, int amount)
+    public async Task TestAsync(string mess1, string mess2, int amount, string nameLookupTest)
     {
         var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
+        var other = await _db.Profile.FirstOrDefaultAsync(usr => usr.Name == nameLookupTest);
 
         if (user == null)
         {
@@ -307,252 +442,252 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
         if (mess1 == "Money")
         {
-
-            if (user != null && mess2 == "Add")
+            if (nameLookupTest == "me")
             {
-                user.Money += amount;
-                await ReplyAsync($"Added {amount} gold");
+                if (user != null && mess2 == "Add")
+                {
+                    user.Money += amount;
+                    await ReplyAsync($"Added {amount} gold");
+                }
+                else if (user != null && mess2 == "Remove")
+                {
+                    user.Money -= amount;
+                    await ReplyAsync($"Removed {amount} gold");
+                }
             }
-            else if (user != null && mess2 == "Remove")
+            else if (other != null)
             {
-                user.Money -= amount;
-                await ReplyAsync($"Removed {amount} gold");
+                if (other != null && mess2 == "Add")
+                {
+                    other.Money += amount;
+                    await ReplyAsync($"Added {amount} gold");
+                }
+                else if (other != null && mess2 == "Remove")
+                {
+                    other.Money -= amount;
+                    await ReplyAsync($"Removed {amount} gold");
+                }
+            }
+            else if (other == null)
+            {
+                await ReplyAsync($"User {nameLookupTest} doesn't exist!");
             }
         }
 
         if (mess1 == "Level")
         {
-
-            if (user != null && mess2 == "Add")
+            if (nameLookupTest == "me")
             {
-                user.Level += amount;
-                await ReplyAsync($"Added {amount} level(s)");
+                if (user != null && mess2 == "Add")
+                {
+                    user.Level += amount;
+                    await ReplyAsync($"Added {amount} level(s)");
+                }
+                else if (user != null && mess2 == "Remove")
+                {
+                    user.Level -= amount;
+                    await ReplyAsync($"Removed {amount} level(s)");
+                }
             }
-            else if (user != null && mess2 == "Remove")
+            else if (other != null)
             {
-                user.Level -= amount;
-                await ReplyAsync($"Removed {amount} level(s)");
+                if (other != null && mess2 == "Add")
+                {
+                    other.Level += amount;
+                    await ReplyAsync($"Added {amount} level(s)");
+                }
+                else if (other != null && mess2 == "Remove")
+                {
+                    other.Level -= amount;
+                    await ReplyAsync($"Removed {amount} level(s)");
+                }
+            }
+            else if (other == null)
+            {
+                await ReplyAsync($"User {nameLookupTest} doesn't exist!");
             }
         }
 
         if (mess1 == "Experience")
         {
-
-            if (user != null && mess2 == "Add")
+            if (nameLookupTest == "me")
             {
-                user.Experience += amount;
-                await ReplyAsync($"Added {amount} experience");
+                if (user != null && mess2 == "Add")
+                {
+                    user.Experience += amount;
+                    await ReplyAsync($"Added {amount} experience");
+                }
+                else if (user != null && mess2 == "Remove")
+                {
+                    user.Experience -= amount;
+                    await ReplyAsync($"Removed {amount} experience");
+                }
             }
-            else if (user != null && mess2 == "Remove")
+            else if (other != null)
             {
-                user.Experience -= amount;
-                await ReplyAsync($"Removed {amount} experience");
+                if (other != null && mess2 == "Add")
+                {
+                    other.Experience += amount;
+                    await ReplyAsync($"Added {amount} experience");
+                }
+                else if (other != null && mess2 == "Remove")
+                {
+                    other.Experience -= amount;
+                    await ReplyAsync($"Removed {amount} experience");
+                }
+            }
+            else if (other == null)
+            {
+                await ReplyAsync($"User {nameLookupTest} doesn't exist!");
             }
         }
+
+        UpdateProfileAsync(user);
+        if (nameLookupTest != "me" && other != null)
+        {
+            UpdateProfileAsync(other);
+        } 
+        return;
     }
 
-    [Command("Shop")]
-    public async Task ShopAsync(string mess1, int item)
+    public async Task HandleShopAsync(string mess1, string nameLookup, Profile profile, List<Weapon> weapons)
     {
-        var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
-        var value1 = 0; var value2 = 0; var value3 = 0;
-        var damage1 = 0; var damage2 = 0; var damage3 = 0;
-        var itemId1 = 0; var itemId2 = 0; var itemId3 = 0;
-        List<string> nameList = new List<string> { "Nothing", "Sword", "Spear", "Axe", "GreatSword", "Rock", "Dagger" };
-        var name1 = ""; var name2 = ""; var name3 = "";
-
         Random rnd1 = new Random();
-        switch (rnd1.Next(1, 6))
-        {
-            case 1:
-                name1 = nameList[1];
-                damage1 = 5;
-                value1 = 10;
-                itemId1 = 1;
-                break;
-            case 2:
-                name1 = nameList[2];
-                damage1 = 4;
-                value1 = 8;
-                itemId1 = 2;
-                break;
-            case 3:
-                name1 = nameList[3];
-                damage1 = 5;
-                value1 = 12;
-                itemId1 = 3;
-                break;
-            case 4:
-                name1 = nameList[4];
-                damage1 = 8;
-                value1 = 20;
-                itemId1 = 4;
-                break;
-            case 5:
-                name1 = nameList[5];
-                damage1 = 2;
-                value1 = 1;
-                itemId1 = 5;
-                break;
-            case 6:
-                name1 = nameList[6];
-                damage1 = 3;
-                value1 = 5;
-                itemId1 = 6;
-                break;
-        } // Item 1
-        switch (rnd1.Next(1, 6))
-        {
-            case 1:
-                name2 = nameList[1];
-                damage2 = 5;
-                value2 = 10;
-                itemId2 = 1;
-                break;
-            case 2:
-                name2 = nameList[2];
-                damage2 = 4;
-                value2 = 8;
-                itemId2 = 2;
-                break;
-            case 3:
-                name2 = nameList[3];
-                damage2 = 5;
-                value2 = 12;
-                itemId2 = 3;
-                break;
-            case 4:
-                name2 = nameList[4];
-                damage2 = 8;
-                value2 = 20;
-                itemId2 = 4;
-                break;
-            case 5:
-                name2 = nameList[5];
-                damage2 = 2;
-                value2 = 1;
-                itemId2 = 5;
-                break;
-            case 6:
-                name2 = nameList[6];
-                damage2 = 3;
-                value2 = 5;
-                itemId2 = 6;
-                break;
-        } // Item 2
-        switch (rnd1.Next(1, 6))
-        {
-            case 1:
-                name3 = nameList[1];
-                damage3 = 5;
-                value3 = 10;
-                itemId3 = 1;
-                break;
-            case 2:
-                name3 = nameList[2];
-                damage3 = 4;
-                value3 = 8;
-                itemId3 = 2;
-                break;
-            case 3:
-                name3 = nameList[3];
-                damage3 = 5;
-                value3 = 12;
-                itemId3 = 3;
-                break;
-            case 4:
-                name3 = nameList[4];
-                damage3 = 8;
-                value3 = 20;
-                itemId3 = 4;
-                break;
-            case 5:
-                name3 = nameList[5];
-                damage3 = 2;
-                value3 = 1;
-                itemId3 = 5;
-                break;
-            case 6:
-                name3 = nameList[6];
-                damage3 = 3;
-                value3 = 5;
-                itemId3 = 6;
-                break;
-        } // Item 3
 
-        if (user != null && mess1 == "Sell")
+        if (profile == null)
         {
-            user.Money += user.Value[user.ItemSelected];
-            user.Inventory[user.ItemSelected] = 0;
-            user.Damage[user.ItemSelected] = 0;
-            user.Value[user.ItemSelected] = 0;
-            await ReplyAsync($"You sold your weapon for {user.Value[user.ItemSelected]} gold!");
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
             return;
         }
 
-        if (user != null && mess1 == "View" && item != null) // Supposed to always be true so whatever number the user enters won't matter
+        if (mess1 == "Swap" && profile.Money >= 50)
         {
-            await ReplyAsync("Here is the current shop stock:");
-            await ReplyAsync($"Item 1: {name1} - {damage1} damage. Costs {value1} gold.");
-            await ReplyAsync($"Item 2: {name2} - {damage2} damage. Costs {value2} gold.");
-            await ReplyAsync($"Item 3: {name3} - {damage3} damage. Costs {value3} gold.");
+            switch (rnd1.Next(1, 7))
+            {
+                case 1:
+                    profile.ShopItemsSave[0] = 1;
+                    break;
+                case 2:
+                    profile.ShopItemsSave[0] = 2;
+                    break;
+                case 3:
+                    profile.ShopItemsSave[0] = 3;
+                    break;
+                case 4:
+                    profile.ShopItemsSave[0] = 4;
+                    break;
+                case 5:
+                    profile.ShopItemsSave[0] = 5;
+                    break;
+                case 6:
+                    profile.ShopItemsSave[0] = 6;
+                    break;
+                case 7:
+                    profile.ShopItemsSave[0] = 7;
+                    break;
+            } // Item 1
+            switch (rnd1.Next(1, 7))
+            {
+                case 1:
+                    profile.ShopItemsSave[1] = 1;
+                    break;
+                case 2:
+                    profile.ShopItemsSave[1] = 2;
+                    break;
+                case 3:
+                    profile.ShopItemsSave[1] = 3;
+                    break;
+                case 4:
+                    profile.ShopItemsSave[1] = 4;
+                    break;
+                case 5:
+                    profile.ShopItemsSave[1] = 5;
+                    break;
+                case 6: 
+                    profile.ShopItemsSave[1] = 6;
+                    break;
+                case 7:
+                    profile.ShopItemsSave[1] = 7;
+                    break;
+            } // Item 2
+            switch (rnd1.Next(1, 7))
+            {
+                case 1:
+                    profile.ShopItemsSave[2] = 1;
+                    break;
+                case 2:
+                    profile.ShopItemsSave[2] = 2;
+                    break;
+                case 3:
+                    profile.ShopItemsSave[2] = 3;
+                    break;
+                case 4:
+                    profile.ShopItemsSave[2] = 4;
+                    break;
+                case 5:
+                    profile.ShopItemsSave[2] = 5;
+                    break;
+                case 6:
+                    profile.ShopItemsSave[2] = 6;
+                    break;
+                case 7:
+                    profile.ShopItemsSave[2] = 7;
+                    break;
+            } // Item 3
+
+            profile.Money -= 50;
+
+            await ReplyAsync("You lost 50 gold for swapping the items!" +
+                             $"\rYou now own {profile.Money} bucks!" +
+                             $"\r\rHere is the current shop stock:" +
+                             $"\rItem 1: {weapons[profile.ShopItemsSave[0]].Name}, Damage: {weapons[profile.ShopItemsSave[0]].Damage}, Costs: {weapons[profile.ShopItemsSave[0]].Value} gold." +
+                             $"\rItem 2: {weapons[profile.ShopItemsSave[1]].Name}, Damage: {weapons[profile.ShopItemsSave[1]].Damage}, Costs: {weapons[profile.ShopItemsSave[1]].Value} gold." +
+                             $"\rItem 3: {weapons[profile.ShopItemsSave[2]].Name}, Damage: {weapons[profile.ShopItemsSave[2]].Damage}, Costs: {weapons[profile.ShopItemsSave[2]].Value} gold.\");");
+        }
+        else if(profile.Money <= 49)
+        {
+            await ReplyAsync("You ain't got enough money!" +
+                             $"You currently have {profile.Money} bucks!");
+        }
+
+        if (profile != null && mess1 == "Sell")
+        {
+            profile.Money += profile.Value[profile.ItemSelected];
+            profile.Inventory[profile.ItemSelected] = 0;
+            profile.Damage[profile.ItemSelected] = 0;
+            profile.Value[profile.ItemSelected] = 0;
+            await ReplyAsync($"You sold your weapon for {profile.Value[profile.ItemSelected]} gold!");
+        }
+
+        if (profile != null && mess1 == "View")
+        {
+            await ReplyAsync("Here is the current shop stock:" +
+                             $"\rItem 1: {weapons[profile.ShopItemsSave[0]].Name}, Damage: {weapons[profile.ShopItemsSave[0]].Damage}, Costs: {weapons[profile.ShopItemsSave[0]].Value} gold." +
+                             $"\rItem 2: {weapons[profile.ShopItemsSave[1]].Name}, Damage: {weapons[profile.ShopItemsSave[1]].Damage}, Costs: {weapons[profile.ShopItemsSave[1]].Value} gold." +
+                             $"\rItem 3: {weapons[profile.ShopItemsSave[2]].Name}, Damage: {weapons[profile.ShopItemsSave[2]].Damage}, Costs: {weapons[profile.ShopItemsSave[2]].Value} gold.");
         }
         
-        if (user != null && mess1 == "Buy" && item == 1)
+        if (profile != null && mess1 == "Buy")
         {
-            if (user.Money >= user.Value[value1])
+            if (profile.Money >= weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Value)
             {
-                user.Money -= user.Value[value1];
-                user.Inventory[user.ItemSelected] = itemId1;
-                user.Damage[user.ItemSelected] = damage1;
-                user.Value[user.ItemSelected] = value1;
-                await ReplyAsync($"You bought the weapon for {value1} gold!");
+                profile.Money -= weapons[profile.ShopItemsSave[0]].Value;
+                profile.Inventory[profile.ItemSelected] = weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Id;
+                profile.Damage[profile.ItemSelected] = weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Damage;
+                profile.Value[profile.ItemSelected] = weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Value;
+                await ReplyAsync($"You bought the weapon {weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Name} for {weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Value} gold!");
             }
             else
             {
-                await ReplyAsync("You don't have enough money!");
-            }
-        }
-        
-        if (user != null && mess1 == "Buy" && item == 2)
-        {
-            if (user.Money >= user.Value[value2])
-            {
-                user.Money -= user.Value[user.ItemSelected];
-                user.Inventory[user.ItemSelected] = itemId2;
-                user.Damage[user.ItemSelected] = damage2;
-                user.Value[user.ItemSelected] = value2;
-                await ReplyAsync($"You bought the weapon for {value2} gold!");
-            }
-            else
-            {
-                await ReplyAsync("You don't have enough money!");
-            }
-        }
-        
-        if (user != null && mess1 == "Buy" && item == 3)
-        {
-            if (user.Money >= user.Value[value3])
-            {
-                user.Money -= user.Value[user.ItemSelected];
-                user.Inventory[user.ItemSelected] = itemId3;
-                user.Damage[user.ItemSelected] = damage3;
-                user.Value[user.ItemSelected] = value3;
-                await ReplyAsync($"You bought the weapon for {value3}!");
-            }
-            else
-            {
-                await ReplyAsync("You don't have enough money!");
+                await ReplyAsync("You don't have enough money!" +
+                                 $"The item cost {weapons[profile.ShopItemsSave[int.Parse(nameLookup) - 1]].Value} while you only have {profile.Money} bucks!");
             }
         }
 
-        if (user == null)
-        {
-            await ReplyAsync("You don't have an account! Create one with !Game account new");
-        }
+        UpdateProfileAsync(profile);
+        return;
     }
 
-    [Command("Help")]
     public async Task HelpAsync()
     {
         await ReplyAsync("You will always put a space between your commands!" +
@@ -572,43 +707,22 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                          "\r\n      Remove: Removes experience from your account." +
                          "\r\n\r\n!Game" +
                          "\r\n  Account:" +
-                         "\r\n      New: Creates an account for said profile." +
-                         "\r\n      ShowProfile: Shows the details of your account." +
+                         "\r\n      New: Creates an account for said profile.+" +
+                         "\r\n      Me: Shows you the details of your account" +
+                         "\r\n      ProfileLookup: Shows the details of others accounts that you look up." +
                          "\r\n      Delete: Deletes the profile you own." +
                          "\r\n  Dungeon:" +
                          "\r\n      Crawl: Moves you around in the dungeon." +
                          "\r\n      Fight: Fights the monster you're currently boxing." +
                          "\r\n  Inventory:" +
                          "\r\n      CheckInv: Checks the weapons you have in your Inventory." +
-                         "\r\n      SwapHand: Swaps the weapon you are using for the one you want to swap with." +
-                         "\r\n  SetItem: This is used for the item that you have collected recently." +
+                         "\r\n      ItemSwap: Swaps the weapon you are using for the one you want to swap with." +
+                         "\r\n  SetItem: Allows you to either set the item, or remove it." +
                          "\r\n      Remove: Removes the item you currently found after fighting ( use this if u don't want the item )." +
-                         "\r\n\r\n!SetItem: Another cmd for swapping the items." +
-                         "\r\n  ( Input a number from 1 - 10 )." +
-                         "\r\n\r\n!Shop" +
-                         "\r\n      Sell: Sells the weapon you are currently using." +
-                         "\r\n      View [Number]: Shows the weapons you can buy. Shop stock is randomly generated. Number can be anything" +
-                         "\r\n      Buy [Number (1-3)]: Purchases a weapon. Be sure to swap to an empty spot in your inventory first.");
-
-    }
-
-    [Command("SetItem")]
-    public async Task ItemAsync(int num)
-    {
-        var user = await _db.Profile.FirstOrDefaultAsync(user => user.DiscordId == Context.User.Id);
-
-        if (user != null && (user.Inventory[user.Inventory.Count - 1] >= 1 || user.Inventory[user.Inventory.Count - 1] <= 10))
-        {
-            if (user.Inventory.Count - 1 > num && (num >= 1 || num <= 10)) 
-            {
-                user.Inventory[num] = user.Inventory[user.Inventory.Count];
-                user.Damage[num] = user.Damage[user.Damage.Count];
-                user.Value[num] = user.Value[user.Value.Count];
-
-                user.Inventory[user.Inventory.Count] = 0;
-                user.Damage[user.Damage.Count] = 0;
-                user.Value[user.Value.Count] = 0;
-            }
-        }
+                         "\r\n      Replace: The item u decide to use ( Input a number from 1 - 10 )." +
+                         "\r\n  Shop: Sells the weapon you are currently using." +
+                         "\r\n      View: [Number]: Shows the weapons you can buy. Shop stock is randomly generated. Number can be anything" +
+                         "\r\n      Buy: [Number (1-3)]: Purchases a weapon. Be sure to swap to an empty spot in your inventory first." +
+                         "\r\n      Swap: Changes the shops items for 50 bucks.");
     }
 }

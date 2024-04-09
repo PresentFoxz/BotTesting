@@ -66,6 +66,9 @@ namespace TextCommandFramework.Migrations
                     b.Property<string>("ProfileId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ShopItemsSave")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserListId")
                         .HasColumnType("TEXT");
 
@@ -76,7 +79,7 @@ namespace TextCommandFramework.Migrations
 
                     b.HasIndex("UserListId");
 
-                    b.ToTable("Profile", (string)null);
+                    b.ToTable("Profile");
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.UserList", b =>
@@ -86,7 +89,7 @@ namespace TextCommandFramework.Migrations
 
                     b.HasKey("UserListId");
 
-                    b.ToTable("List", (string)null);
+                    b.ToTable("List");
                 });
 
             modelBuilder.Entity("TextCommandFramework.Models.Weapon", b =>

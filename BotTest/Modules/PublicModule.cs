@@ -93,15 +93,15 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                 break;
 
             case "Shop":
-                HandleShopAsync(mess2, nameLookup, profile, weapons);
+                await HandleShopAsync(mess2, nameLookup, profile, weapons);
                 break;
 
             case "Save":
-                UpdateProfileAsync(profile);
+                await UpdateProfileAsync(profile);
                 break;
 
             case "Help":
-                HelpAsync();
+                await HelpAsync();
                 break;
 
             default:
@@ -140,7 +140,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
 
-        UpdateProfileAsync(profile);
+        await UpdateProfileAsync(profile);
         return;
     }
 
@@ -233,8 +233,6 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                         profile.CExpGain = 25;
                         break;
                 }
-
-                ;
             }
 
             await ReplyAsync($"You're in a Fight with: {profile.CName}! --> !Game Dungeon Fight");
@@ -295,7 +293,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             await ReplyAsync("You just swung at mid air like a crazy man! Are you shadow boxing?");
         }
 
-        UpdateProfileAsync(profile);
+        await UpdateProfileAsync(profile);
         return;
     }
     public async Task HandleInventoryAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
@@ -347,7 +345,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
 
-        UpdateProfileAsync(profile);
+        await UpdateProfileAsync(profile);
         return;
     }
 
@@ -409,7 +407,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             await ReplyAsync("Account not found!");
         }
 
-        UpdateProfileAsync(profile);
+        await UpdateProfileAsync(profile);
         return;
     }
 
@@ -542,10 +540,10 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
 
-        UpdateProfileAsync(user);
+        await UpdateProfileAsync(user);
         if (nameLookupTest != "me" && other != null)
         {
-            UpdateProfileAsync(other);
+            await UpdateProfileAsync(other);
         } 
         return;
     }
@@ -684,7 +682,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             }
         }
 
-        UpdateProfileAsync(profile);
+        await UpdateProfileAsync(profile);
         return;
     }
 

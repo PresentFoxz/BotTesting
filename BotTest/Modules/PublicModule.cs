@@ -55,8 +55,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
                 if (rah == profile.Inventory.Count)
                 {
-                    await ReplyAsync(
-                        $"The item {weapons[i].Name} is now in the reserved slot, use cmd ( !Game SetItem Replace [ any number from 1 to MaxInv ]!");
+                    await ReplyAsync($"The item {weapons[i].Name} is now in the reserved slot, use cmd ( !Game SetItem Replace [ any number from 1 to MaxInv ]!");
                 }
 
                 break;
@@ -102,6 +101,10 @@ public class PublicModule : ModuleBase<SocketCommandContext>
 
             case "Help":
                 await HelpAsync();
+                break; 
+            
+            case "LevelUp":
+                await LevelUpAsync(profile);
                 break;
 
             default:
@@ -110,6 +113,31 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         }
     }
 
+    public async Task LevelUpAsync(Profile profile)
+    {
+        if (profile == null)
+        {
+            await ReplyAsync("You don't have an account! Create one with !Game account new");
+            return;
+        }
+
+        int experience = profile.Experience;
+        int expNeed = 15 + (5 * profile.Level);
+        
+        if (experience < expNeed)
+        {
+            await ReplyAsync($"You don't have enough experience to level up! You need {expNeed - experience} more experience.");
+        }
+        else if (experience >= expNeed)
+        {
+            profile.Level += 1;
+            profile.Experience = 0;
+            await ReplyAsync($"You leveled up! You are now level {profile.Level}!");
+        }
+
+        await UpdateProfileAsync(profile);
+        return;
+    }
     public async Task UpdateProfileAsync(Profile profile)
     {
         if (profile == null)
@@ -143,7 +171,7 @@ public class PublicModule : ModuleBase<SocketCommandContext>
         await UpdateProfileAsync(profile);
         return;
     }
-
+    
     public async Task HandleSetItemAsync(string mess2, string nameLookup, Profile profile, List<Weapon> weapons)
     {
         if (profile == null)
@@ -634,7 +662,6 @@ public class PublicModule : ModuleBase<SocketCommandContext>
             } // Item 3
 
             profile.Money -= 50;
-
             await ReplyAsync("You lost 50 gold for swapping the items!" +
                              $"\rYou now own {profile.Money} bucks!" +
                              $"\r\rHere is the current shop stock:" +
@@ -709,6 +736,8 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                          "\r\n      Me: Shows you the details of your account" +
                          "\r\n      ProfileLookup: Shows the details of others accounts that you look up." +
                          "\r\n      Delete: Deletes the profile you own." +
+                         "\r\n  LevelUp:" +
+                         "\r\n      Levels you up if you have enough experience." +
                          "\r\n  Dungeon:" +
                          "\r\n      Crawl: Moves you around in the dungeon." +
                          "\r\n      Fight: Fights the monster you're currently boxing." +

@@ -296,6 +296,8 @@ public class PublicModule : ModuleBase<SocketCommandContext>
                                  $"\rIt does {weapons[random].Damage} damage!" +
                                  $"\rIt has a value of {weapons[random].Value}");
 
+                await LevelUpAsync(profile);
+
                 for (int i = 0; i < 9; i++)
                 {
                     if (profile.Inventory[i] > 0)
